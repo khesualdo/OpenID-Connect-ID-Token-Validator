@@ -1,4 +1,4 @@
-# :crown: :trophy: :moneybag: OpenId-Connect ID-Token Validator
+# :crown: :trophy: :moneybag: OpenID-Connect ID-Token Validator
 
 I spent a lot of time searching for a way to validate OpenId-Connect ID Tokens, but I spent even more time searching for a way to make my code testable. I want to share this code with the world, and hopefully someone else finds it useful!
 
