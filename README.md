@@ -102,13 +102,45 @@ Mock<A> mock = new Mock<A>(MockBehavior.Strict);
 // B either has to be a method declared in an interface or an abstract class, 
 // or be a virtual method in a regular class
 // R is any valid object of return type of B
-mock.Setup(m => m.B).Returns(R);
+mock.Setup(m => m.B(...)).Returns(R);
 
 // When B is called on mock.Object, R is returned
 ValidateOpenIdConnectJSONWebToken(..., mock.Object, ...);
 ```
 
 Such specific properties are required from `A` and `B`, because Moq will create its own version of `B` (for that it either needs to extend `A` and override `B` or implement `A` and define `B`) that follows the requirements set by the `Setup` and `Returns` method calls.
+
+```C#
+Mock<GuidUtility> mock = new Mock<GuidUtility>(MockBehavior.Strict);
+
+// It.IsAny<Guid> - Allows any value of type Guid
+mock.Setup(m => m.CompareGuids(It.IsAny<Guid>, It.IsAny<Guid>, It.IsAny<Guid>)).Returns(True);
+
+mock.Object.CompareGuids(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()) // Case 1 - Pass
+
+Guid sameGuid = Guid.NewGuid();
+mock.Object.CompareGuids(sameGuid, sameGuid, sameGuid); // Case 2 - Pass
+
+mock.Object.CompareGuids(Guid.Empty, Guid.NewGuid(), sameGuid); // Case 3 - Pass
+
+// It.Is<Guid> - Allows to restrict parameters of type Guid
+mock.Setup(m => m.CompareGuids(
+  It.Is<Guid>(g => g.ToString().StartsWith("4"), 
+  It.Is<Guid>(g => g != Guid.Empty), 
+  It.Is<Guid>(g => g == expectedGuid))
+).Returns(True);
+
+// Variable - Must pass this exact variable
+Guid first = Guid.NewGuid();
+Guid second = Guid.NewGuid();
+Guid third = Guid.NewGuid();
+
+mock.Setup(m => m.CompareGuids(first, second, third)).Returns(True);
+
+mock.Object.CompareGuids(first, second, third); // Case 1 - Pass
+
+mock.Object.CompareGuids(first, first, second); // Case 1 - Fail
+```
 
 # Common Questions
 
