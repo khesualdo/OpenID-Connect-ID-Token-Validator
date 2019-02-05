@@ -29,7 +29,7 @@ OpenIdConnectTokenValidator oidcTokenValidator = new OpenIdConnectTokenValidator
 bool result = await oidcTokenValidator.ValidateOpenIdConnectJSONWebTokenWrapperAsync(token, issuer, audience, nonce, wellKnownURL);
 ```
 
-### Non-testable
+### Non-Testable
 ```C#
 string token = "...";
 string issuer = "...";
@@ -110,27 +110,39 @@ ValidateOpenIdConnectJSONWebToken(..., mock.Object, ...);
 
 Such specific properties are required from `A` and `B`, because Moq will create its own version of `B` (for that it either needs to extend `A` and override `B` or implement `A` and define `B`) that follows the requirements set by the `Setup` and `Returns` method calls.
 
+#### `It.IsAny<Guid>`
+Allows any value of type Guid to be used as a parameter.
+
 ```C#
 Mock<GuidUtility> mock = new Mock<GuidUtility>(MockBehavior.Strict);
-
-// It.IsAny<Guid> - Allows any value of type Guid
 mock.Setup(m => m.CompareGuids(It.IsAny<Guid>, It.IsAny<Guid>, It.IsAny<Guid>)).Returns(True);
 
-mock.Object.CompareGuids(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()) // Case 1 - Pass
+// Case 1 - Pass
+mock.Object.CompareGuids(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
 
+// Case 2 - Pass
 Guid sameGuid = Guid.NewGuid();
-mock.Object.CompareGuids(sameGuid, sameGuid, sameGuid); // Case 2 - Pass
+mock.Object.CompareGuids(sameGuid, sameGuid, sameGuid);
 
-mock.Object.CompareGuids(Guid.Empty, Guid.NewGuid(), sameGuid); // Case 3 - Pass
+// Case 3 - Pass
+mock.Object.CompareGuids(Guid.Empty, Guid.NewGuid(), sameGuid);
+```
 
-// It.Is<Guid> - Allows to restrict parameters of type Guid
+#### `It.Is<Guid>`
+Restricts allowable parameters (of type Guid).
+
+```C#
 mock.Setup(m => m.CompareGuids(
   It.Is<Guid>(g => g.ToString().StartsWith("4"), 
   It.Is<Guid>(g => g != Guid.Empty), 
   It.Is<Guid>(g => g == expectedGuid))
 ).Returns(True);
+```
 
-// Variable - Must pass this exact variable
+#### Variable
+Forces to pass the exact variable that was used for mocking.
+
+```C#
 Guid first = Guid.NewGuid();
 Guid second = Guid.NewGuid();
 Guid third = Guid.NewGuid();
