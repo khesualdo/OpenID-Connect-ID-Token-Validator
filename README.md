@@ -94,65 +94,8 @@ Therefore, I had to create a [second version](https://github.com/00111000/OpenId
 
 For mocking external activity I used the Moq.NET framework.
 
-```C#
-// A either has to be an interface or an abstract class, 
-// it may also be a regular class as long as B is a virtual method
-Mock<A> mock = new Mock<A>(MockBehavior.Strict);
-
-// B either has to be a method declared in an interface or an abstract class, 
-// or be a virtual method in a regular class
-// R is any valid object of return type of B
-mock.Setup(m => m.B(...)).Returns(R);
-
-// When B is called on mock.Object, R is returned
-ValidateOpenIdConnectJSONWebToken(..., mock.Object, ...);
-```
-
-Such specific properties are required from `A` and `B`, because Moq will create its own version of `B` (for that it either needs to extend `A` and override `B` or implement `A` and define `B`) that follows the requirements set by the `Setup` and `Returns` method calls.
-
-#### `It.IsAny<Guid>`
-Allows any value of type Guid to be used as a parameter.
-
-```C#
-Mock<GuidUtility> mock = new Mock<GuidUtility>(MockBehavior.Strict);
-mock.Setup(m => m.CompareGuids(It.IsAny<Guid>, It.IsAny<Guid>, It.IsAny<Guid>)).Returns(True);
-
-// Case 1 - Pass
-mock.Object.CompareGuids(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-
-// Case 2 - Pass
-Guid sameGuid = Guid.NewGuid();
-mock.Object.CompareGuids(sameGuid, sameGuid, sameGuid);
-
-// Case 3 - Pass
-mock.Object.CompareGuids(Guid.Empty, Guid.NewGuid(), sameGuid);
-```
-
-#### `It.Is<Guid>`
-Restricts allowable parameters (of type Guid).
-
-```C#
-mock.Setup(m => m.CompareGuids(
-  It.Is<Guid>(g => g.ToString().StartsWith("4"), 
-  It.Is<Guid>(g => g != Guid.Empty), 
-  It.Is<Guid>(g => g == expectedGuid))
-).Returns(True);
-```
-
-#### Variable
-Forces to pass the exact variable that was used for mocking.
-
-```C#
-Guid first = Guid.NewGuid();
-Guid second = Guid.NewGuid();
-Guid third = Guid.NewGuid();
-
-mock.Setup(m => m.CompareGuids(first, second, third)).Returns(True);
-
-mock.Object.CompareGuids(first, second, third); // Case 1 - Pass
-
-mock.Object.CompareGuids(first, first, second); // Case 1 - Fail
-```
+I have abstracted the contents of this section into a gist.
+https://gist.github.com/00111000/590cc386657c88c3ee21831c2d22d71c
 
 # Common Questions
 
